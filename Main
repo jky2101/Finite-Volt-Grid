@@ -1,0 +1,108 @@
+import random as rd
+import numpy as np
+
+from mpl_toolkits import mplot3d
+import matplotlib.pyplot as plt
+
+# (a,b) is coordinate for 0 electrode
+A = 7
+B = 35
+
+# (c,d) is coordinate for E electrode
+C = 38
+D = 45
+
+# (e,f) is coordinate for point P
+E = 24
+F = 24
+
+# (X1,Y1) is top left corner of rectangle
+X1 = 0
+Y1 = 0
+
+# (X2,Y2) is bottom right corner of rectangle
+X2 = 42
+Y2 = 50
+
+def randomwalk(t0, a, b, c, d, e, f):
+  posx = e
+  posy = f
+  for i in range(0, t0):
+    if ((posx < X1) or (posx > X2) or (posy < Y1) or (posy > Y2)):
+      print("OUT OF BOUNDS:")
+      print(posx, posy)
+    moveset = [1,2,3,4]
+    topedge = 0
+    leftedge = 0
+    bottomedge = 0
+    rightedge = 0
+    if (posy == Y1):
+      topedge = 1
+    if (posx == X1):
+      leftedge = 1
+    if (posy == Y2):
+      bottomedge = 1
+    if (posx == X2):
+      rightedge = 1
+    if ((posx == a) and (posy == b)):
+      return (0)
+    if ((posx == c) and (posy == d)):
+      return (1)
+    if (topedge == 1):
+      moveset.remove(4)
+    if (bottomedge == 1):
+      moveset.remove(3)
+    if (leftedge == 1):
+      moveset.remove(2)
+    if (rightedge == 1):
+      moveset.remove(1)
+    g = rd.choice(moveset)
+    if g == 1:
+      posx = posx + 1
+    if g == 2:
+      posx = posx - 1
+    if g == 3:
+      posy = posy + 1
+    if g == 4:
+      posy = posy - 1
+  return ('A')
+
+
+def arrval(a, b, c, d, e, f):
+    r = 0
+    p = 0
+    for i in range(0, 100):
+        m = randomwalk(1000, a, b, c, d, e, f)
+        if (m == 0):
+            r = r + 1
+        if (m == 1):
+            p = p + 1
+    if ((r + p) != 0):
+        return (p / (r + p))
+    else:
+        return (0)
+
+ARR = np.zeros((X2-X1+1, Y2-Y1+1))
+for i in range(0,X2-X1+1):
+    print(i)
+    for j in range(0,Y2-Y1+1):
+       ARR[i][j] = arrval(A,B,C,D,(i+X1),(j+Y1))
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+x = np.arange(0, 51, 1)
+y = np.arange(0, 43, 1)
+X, Y = np.meshgrid(x, y)
+Z = ARR
+
+x = [5,40,35,11,45]
+y = [5,1,6,40,10]
+z = [0.3744680851,0.2468085106,0.1106382979,0.4468085106,0.2765957447]
+
+ax.plot_surface(X, Y, Z, cmap="coolwarm")
+ax.scatter3D(x, y, z, color = "green")
+ax.set_xlabel('X Direction')
+ax.set_ylabel('Y Direction')
+ax.set_zlabel('Voltage %')
+
+plt.show()
